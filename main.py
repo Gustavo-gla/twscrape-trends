@@ -132,7 +132,10 @@ async def trends(
     require_key(x_api_key)
     # passa o ID ja corrigido; o twscrape usa como esta (nao passa pelo map quebrado dele)
     items = await gather(api.trends(padded_trend_id(category)))
-    return {"category": category, "count": len(items), "trends": [trend_to_dict(t) for t in items]}
+    trends = [trend_to_dict(t) for t in items]
+    # remove anuncios/promovidos: trends de verdade tem rank; promovidos vem sem rank
+    trends = [t for t in trends if t.get("rank") is not None]
+    return {"category": category, "count": len(trends), "trends": trends}
 
 
 @app.get("/search")
